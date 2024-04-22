@@ -8,36 +8,47 @@
 Цель этой базы данных - оптимизировать рабочий процесс автосервиса путем организации и управления различными аспектами процесса ремонта, включая информацию о клиентах, деталях автомобилей, заказах на ремонт, инвентаре запчастей, управлении персоналом и планировании.
 
 ## Типичные запросы
+1. Добавление нового заказа на ремонт:
+```sql
+INSERT INTO RepairOrders (status, Cars_id, date_time, Schedule_id)
+SELECT 'new', Cars_id, NOW(), Schedule.id
+FROM Clients
+JOIN Cars ON Clients.Cars_id = Cars.id
+JOIN Schedule ON Clients.id = Schedule.Clients_id
+WHERE Cars.id = 12;
+```
+2.Обновление статуса заказа на ремонт:
+```sql
+UPDATE RepairOrders
+SET status = 'process'
+WHERE id = 6;
+```
+3. Получение списка активных заказов на ремонт для конкретного клиента:
+```sql
+SELECT ro.id, ro.date_time, ro.status
+FROM RepairOrders ro
+JOIN Cars c ON ro.Cars_id = c.id
+JOIN Clients cl ON c.id = cl.Cars_id
+WHERE cl.id = 1 AND ro.status IN ('new', 'process');
+```
+4. Получение информации о заказе на ремонт и его деталях:
+```sql
+SELECT ro.id, ro.date_time, ro.status, c.VIN, m.name AS model_name, b.name AS brand_name
+FROM RepairOrders ro
+JOIN Cars c ON ro.Cars_id = c.id
+JOIN Models m ON c.Models_id = m.id
+JOIN Brands b ON m.Brands_id = b.id
+WHERE ro.id = 1;
+```
+5. Получение списка всех заказов на ремонт с количеством заказов для каждого клиента:
+```sql
+SELECT cl.name AS client_name, COUNT(ro.id) AS order_count
+FROM Clients cl
+LEFT JOIN Cars c ON cl.Cars_id = c.id
+LEFT JOIN RepairOrders ro ON c.id = ro.Cars_id
+GROUP BY cl.id;
+```
 
-1. Получить список заказов на ремонт для конкретного клиента.
-> SELECT RepairOrders.id, RepairOrders.status, RepairOrders.date_time
-> FROM RepairOrders
-> INNER JOIN Schedule ON RepairOrders.Schedule_id = Schedule.id
-> INNER JOIN Clients ON Schedule.Clients_id = Clients.id
-> WHERE Clients.id = <id_клиента>;
-2. Получить список доступных сотрудников на определенную дату и время.
-> SELECT Staff.id, Staff.name, Staff.position
-> FROM Staff
-> WHERE Staff.id NOT IN (
-   >  SELECT DISTINCT RepairOrders_has_Staff.Staff_id
-   >  FROM RepairOrders_has_Staff
-   >  INNER JOIN RepairOrders ON RepairOrders_has_Staff.RepairOrders_id = RepairOrders.id
-   >  WHERE RepairOrders.date_time = 'YYYY-MM-DD HH:MM:SS'  -- Замените 'YYYY-MM-DD HH:MM:SS' на нужную дату и время
-> );
-3. Проверить состояние инвентаря определенной детали.
-> SELECT name, quantity
-> FROM Parts
-> WHERE name = 'название_детали';
-4. Просмотреть расписание на определенный день.
->  SELECT Schedule.id, Schedule.date_time, Clients.name AS client_name, Clients.contact_info
->  FROM Schedule
->  INNER JOIN Clients ON Schedule.Clients_id = Clients.id
->  WHERE DATE(Schedule.date_time) = 'YYYY-MM-DD'; -- Замените 'YYYY-MM-DD' на нужную дату
-5. Рассчитать общую сумму, заработанную с заказов на ремонт за определенный период времени.
-> SELECT SUM(amount) AS total_earnings
-> FROM Orders
-> INNER JOIN RepairOrders ON Orders.RepairOrders_id = RepairOrders.id
-> WHERE RepairOrders.date_time >= 'начальная_дата' AND RepairOrders.date_time <= 'конечная_дата';
 ## Технические требования
 
 Для запуска этой базы данных вам понадобится следующее:
