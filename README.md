@@ -8,7 +8,7 @@
 Цель этой базы данных - оптимизировать рабочий процесс автосервиса путем организации и управления различными аспектами процесса ремонта, включая информацию о клиентах, деталях автомобилей, заказах на ремонт, инвентаре запчастей, управлении персоналом и планировании.
 
 ## Типичные запросы
-1. Добавление нового заказа на ремонт:
+**1. Добавление нового заказа на ремонт:**
 ```sql
 INSERT INTO RepairOrders (status, Cars_id, date_time, Schedule_id)
 SELECT 'new', Cars_id, NOW(), Schedule.id
@@ -17,13 +17,13 @@ JOIN Cars ON Clients.Cars_id = Cars.id
 JOIN Schedule ON Clients.id = Schedule.Clients_id
 WHERE Cars.id = 12;
 ```
-2.Обновление статуса заказа на ремонт:
+**2.Обновление статуса заказа на ремонт:**
 ```sql
 UPDATE RepairOrders
 SET status = 'process'
 WHERE id = 6;
 ```
-3. Получение списка активных заказов на ремонт для конкретного клиента:
+**3. Получение списка активных заказов на ремонт для конкретного клиента:**
 ```sql
 SELECT ro.id, ro.date_time, ro.status
 FROM RepairOrders ro
@@ -31,7 +31,7 @@ JOIN Cars c ON ro.Cars_id = c.id
 JOIN Clients cl ON c.id = cl.Cars_id
 WHERE cl.id = 1 AND ro.status IN ('new', 'process');
 ```
-4. Получение информации о заказе на ремонт и его деталях:
+**4. Получение информации о заказе на ремонт и его деталях:**
 ```sql
 SELECT ro.id, ro.date_time, ro.status, c.VIN, m.name AS model_name, b.name AS brand_name
 FROM RepairOrders ro
@@ -40,7 +40,7 @@ JOIN Models m ON c.Models_id = m.id
 JOIN Brands b ON m.Brands_id = b.id
 WHERE ro.id = 1;
 ```
-5. Получение списка всех заказов на ремонт с количеством заказов для каждого клиента:
+**5. Получение списка всех заказов на ремонт с количеством заказов для каждого клиента:**
 ```sql
 SELECT cl.name AS client_name, COUNT(ro.id) AS order_count
 FROM Clients cl
