@@ -1,18 +1,16 @@
 DELIMITER //
 
-CREATE TRIGGER UpdateRepairOrderStatus AFTER INSERT ON Orders FOR EACH ROW
+CREATE TRIGGER update_repair_order_status_trigger
+AFTER INSERT ON orders
+FOR EACH ROW
 BEGIN
-    DECLARE total_amount DECIMAL(10,2);
+    DECLARE repairOrderId INT;
 
-    -- Получаем общую сумму заказа
-    SELECT SUM(amount) INTO total_amount FROM Orders WHERE RepairOrders_id = NEW.RepairOrders_id;
+    SELECT RepairOrders_id INTO repairOrderId FROM Orders WHERE id = NEW.id;
 
-    -- Проверяем, превышает ли общая сумма заказа пороговое значение
-    IF total_amount > 50000 THEN
-        -- Обновляем статус заказа на "completed"
-        UPDATE RepairOrders SET status = 'completed' WHERE id = NEW.RepairOrders_id;
+    IF NEW.status = 'paid' THEN
+        UPDATE repair_orders SET status = 'completed' WHERE id = repairOrderId;
     END IF;
-END;
-//
+END//
 
 DELIMITER ;
